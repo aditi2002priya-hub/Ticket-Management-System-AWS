@@ -33,10 +33,6 @@ Supporting AWS services include:
 
 *VPC, Public/Private Subnets, Internet Gateway, NAT Gateway, Route Tables, Security Groups, IAM Role, S3, Launch Template, Auto Scaling Group, SSM Session Manager, CloudWatch and SNS.*
 
-### Architecture Diagram
-
-> Architecture diagram will be added here.
-
 ---
 
 ## 🌍 AWS Region
@@ -83,22 +79,13 @@ The NAT Gateway allows resources in private subnets to make outbound internet co
 
 ---
 
-🔐 Security Design
-Security Groups
-Security Group
-Inbound Access
-Purpose
-ALB-SG
-HTTP (80) from Internet
-Public entry point
-App-SG
-HTTP (80) from ALB-SG
-Application access
-RDS-SG
-MySQL (3306) from App-SG
-Database access
+## 🔐 Security group
 
----
+| *Security Group* | *Inbound Access* | *Purpose* |
+| --- | --- | --- |
+| ALB-SG | HTTP (80) from Internet | Public entry point |
+| App-SG | HTTP (80) from ALB-SG | Application access |
+| RDS-SG | MySQL (3306) from App-SG | Database access |
 
 This provides controlled communication between the *ALB → EC2 → RDS* layers.
 
@@ -254,11 +241,6 @@ The ticket management application includes:
 
 ---
 
-💰 Cost Awareness
-Used db.t3.micro for the project environment.
-NAT Gateway was used for private subnet outbound connectivity during testing.
-After testing, the NAT Gateway and associated Elastic IP were removed to avoid unnecessary ongoing charges.
-
 ## 📸 Project Screenshots
 
 Screenshots of the actual working application and AWS infrastructure will be added here.
@@ -366,8 +348,9 @@ The *Cloud-Hosted Ticket Management System – AWS* demonstrates a practical dep
 
 *AWS Cloud & Cloud Security Project
 
-👩‍💻 Author
+---
 
-Aditi Priya
+## 👩‍💻 Author
 
+*Aditi Priya*  
 AWS Cloud & Cloud Security Enthusiast
