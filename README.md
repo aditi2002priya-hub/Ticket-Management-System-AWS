@@ -83,17 +83,22 @@ The NAT Gateway allows resources in private subnets to make outbound internet co
 
 ---
 
-## 🔐 Security
+🔐 Security Design
+Security Groups
+Security Group
+Inbound Access
+Purpose
+ALB-SG
+HTTP (80) from Internet
+Public entry point
+App-SG
+HTTP (80) from ALB-SG
+Application access
+RDS-SG
+MySQL (3306) from App-SG
+Database access
 
-### Security Groups
-
-Three Security Groups were configured:
-
-| Security Group | Purpose |
-|---|---|
-| ALB Security Group | Controls incoming web traffic to the Application Load Balancer |
-| App/EC2 Security Group | Controls traffic reaching application instances |
-| RDS Security Group | Controls database access from the application layer |
+---
 
 This provides controlled communication between the *ALB → EC2 → RDS* layers.
 
@@ -216,7 +221,6 @@ The ticket management application includes:
 - Tested application access through the ALB
 - Tested user registration and login
 - Verified dashboard functionality
-- Created support tickets
 - Viewed ticket details
 - Tested ticket updates
 - Tested ticket comments
@@ -249,6 +253,11 @@ The ticket management application includes:
 | Alert notifications | Configured SNS |
 
 ---
+
+💰 Cost Awareness
+Used db.t3.micro for the project environment.
+NAT Gateway was used for private subnet outbound connectivity during testing.
+After testing, the NAT Gateway and associated Elastic IP were removed to avoid unnecessary ongoing charges.
 
 ## 📸 Project Screenshots
 
@@ -343,9 +352,6 @@ Through this project, I gained practical experience in:
 - Route 53 custom domain
 - CloudFront CDN
 - Centralized logging
-- CI/CD automation
-- Infrastructure as Code using Terraform or CloudFormation
-
 ---
 
 ## 📌 Project Summary
@@ -359,3 +365,9 @@ The *Cloud-Hosted Ticket Management System – AWS* demonstrates a practical dep
 ### Project Type
 
 *AWS Cloud & Cloud Security Project
+
+👩‍💻 Author
+
+Aditi Priya
+
+AWS Cloud & Cloud Security Enthusiast
