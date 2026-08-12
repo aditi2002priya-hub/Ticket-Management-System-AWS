@@ -307,24 +307,6 @@ Screenshots of the actual working application and AWS infrastructure will be add
 - CloudWatch
 - SNS
 - AWS Infrastructure Troubleshooting
-
----
-
-## 📚 Key Learning Outcomes
-
-Through this project, I gained practical experience in:
-
-- Designing public and private AWS networks
-- Controlling traffic using route tables and security groups
-- Connecting ALB, EC2 and RDS
-- Deploying applications on EC2
-- Using Launch Templates and Auto Scaling
-- Implementing RDS Multi-AZ for high availability
-- Managing EC2 securely using SSM Session Manager
-- Monitoring infrastructure using CloudWatch
-- Creating alert workflows using SNS
-- Troubleshooting AWS connectivity and application issues
-
 ---
 
 ## 🚀 Future Enhancements
@@ -334,20 +316,6 @@ Through this project, I gained practical experience in:
 - Route 53 custom domain
 - CloudFront CDN
 - Centralized logging
----
-
-## 📌 Project Summary
-
-The *Cloud-Hosted Ticket Management System – AWS* demonstrates a practical deployment of a web application using AWS networking, load balancing, auto scaling, database high availability, secure EC2 management, monitoring, and alerting.
-
-### Project Focus
-
-*AWS Cloud Computing • Cloud Security • Networking • High Availability • Scalability • Monitoring*
-
-### Project Type
-
-*AWS Cloud & Cloud Security Project
-
 ---
 
 ## 👩‍💻 Author
