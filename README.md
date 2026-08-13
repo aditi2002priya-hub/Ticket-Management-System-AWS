@@ -225,18 +225,7 @@ IAM
 DATABASE CREDENTIALS
     |
     +----> Injected via Environment Variables
-
-
---------------------------------------------------------------------------------
-                                LEGEND
---------------------------------------------------------------------------------
-
-Solid Lines = Active Traffic / Data Flow
-Dashed Purple = Optional Component Not Currently Deployed (Route 53)
-Dashed Grey = Monitoring / Storage Integration
-
-================================================================================
-
+```
 ---
 
 ## 🌍 AWS Region
