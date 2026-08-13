@@ -27,11 +27,215 @@ The project demonstrates practical experience with AWS networking, compute, data
 
 The project follows a multi-tier AWS architecture:
 
-*Users → Application Load Balancer → EC2 Application Instances → RDS MySQL*
+text
+================================================================================
+              CLOUD-HOSTED TICKET MANAGEMENT SYSTEM - AWS ARCHITECTURE
+                              REGION: ap-south-1
+================================================================================
 
-Supporting AWS services include:
+[ USERS ]
+    |
+    v
++--------------------------------+
+|      ROUTE 53 [DNS]            |
+|      OPTIONAL - NOT DEPLOYED   |
++---------------+----------------+
+                |
+                v
++================================================================================+
+||                              AWS CLOUD - VPC                                 ||
+||                              ap-south-1                                      ||
+||                                                                              ||
+||  +----------------------+                                                    ||
+||  |  INTERNET GATEWAY    |                                                    ||
+||  +----------+-----------+                                                    ||
+||             |                                                                ||
+||  +----------v-----------+     +----------------+                             ||
+||  |   PUBLIC SUBNETS     |     | PUBLIC ROUTE   |                             ||
+||  |      [MULTI-AZ]      |     | TABLE          |                             ||
+||  |                      |     | 0.0.0.0/0 -> IGW|                             ||
+||  |  +---------------+   |     +----------------+                             ||
+||  |  | ticket-mgmt-  |   |                                                    ||
+||  |  | alb           |   |                                                    ||
+||  |  | APPLICATION   |   |                                                    ||
+||  |  | LOAD BALANCER |   |                                                    ||
+||  |  +-------+-------+   |                                                    ||
+||  |          |           |                                                    ||
+||  |  +-------v-------+   |                                                    ||
+||  |  | NAT GATEWAY   |   |                                                    ||
+||  |  | [OUTBOUND ONLY]|  |                                                    ||
+||  |  +---------------+   |                                                    ||
+||  +----------+-----------+                                                    ||
+||             |                                                                ||
+||             v                                                                ||
+||  +-----------------------------------------------------------------------+  ||
+||  |              TARGET GROUP [HTTP:80]                                   |  ||
+||  |              HEALTH CHECK: HTTP /                                    |  ||
+||  +-------------------------------+---------------------------------------+  ||
+||                                  |                                          ||
+||                                  v                                          ||
+||  +-------------------------------+---------------------------------------+  ||
+||  |        PRIVATE APP SUBNETS [MULTI-AZ] - NO PUBLIC IPs                |  ||
+||  |                                                                       |  ||
+||  |  +----------------------------------------------------------------+   |  ||
+||  |  |          AUTO SCALING GROUP - ticket-mgmt-asg                 |   |  ||
+||  |  |          Desired: 2 | Min: 2 | Max: 4 | CPU Target: 60%      |   |  ||
+||  |  |                                                                |   |  ||
+||  |  |   +----------------------+       +----------------------+     |   |  ||
+||  |  |   | EC2 APP SERVER       |       | EC2 APP SERVER       |     |   |  ||
+||  |  |   | ap-south-1a          |       | ap-south-1b          |     |   |  ||
+||  |  |   | PHP APP              |       | PHP APP              |     |   |  ||
+||  |  |   | SSM MANAGED         |       | SSM MANAGED         |     |   |  ||
+||  |  |   +----------------------+       +----------------------+     |   |  ||
+||  |  +----------------------------------------------------------------+   |  ||
+||  +--------------------------------+--------------------------------------+  ||
+||                                   |                                         ||
+||                                   v                                         ||
+||  +-----------------------------------------------------------------------+  ||
+||  |                 PRIVATE DB SUBNETS [MULTI-AZ]                         |  ||
+||  |                                                                       |  ||
+||  |   +----------------------------+     +-----------------------------+ |  ||
+||  |   | AMAZON RDS MYSQL           |<--->| RDS MYSQL - STANDBY          | |  ||
+||  |   | [PRIMARY]                  |     | [STANDBY]                    | |  ||
+||  |   | ticket-mgmt-db-2          |     | ap-south-1b                  | |  ||
+||  |   | ap-south-1a               |     | AUTOMATIC FAILOVER            | |  ||
+||  |   | db.t3.micro · gp3 20GB    |     |                             | |  ||
+||  |   | MULTI-AZ                  |     |                             | |  ||
+||  |   +----------------------------+     +-----------------------------+ |  ||
+||  +-----------------------------------------------------------------------+  ||
+||                                                                              ||
+++=============================================================================++
+                                   |
+         +-------------------------+-------------------------+----------------+
+         |                         |                         |                |
+         v                         v                         v                v
++----------------+    +--------------------+    +-----------------+    +---------------+
+|   AMAZON S3    |    |    CLOUDWATCH      |    |    AMAZON SNS   |    |      IAM      |
+| [ATTACHMENT    |    |    [MONITORING]    |    | [ALERT NOTIFS]  |    | [ACCESS CTRL] |
+|   STORAGE]     |    |                    |    |                 |    |               |
++----------------+    +--------------------+    +-----------------+    +---------------+
+                      | High CPU / RDS CPU |    | EMAIL ALERT     |    | EC2 / SSM /   |
+                      | Unhealthy Targets  |    | NOTIFICATIONS   |    | RDS ROLES     |
+                      +--------------------+    +-----------------+    +---------------+
 
-*VPC, Public/Private Subnets, Internet Gateway, NAT Gateway, Route Tables, Security Groups, IAM Role, S3, Launch Template, Auto Scaling Group, SSM Session Manager, CloudWatch and SNS.*
+
+--------------------------------------------------------------------------------
+                           SECURITY GROUPS FLOW
+--------------------------------------------------------------------------------
+
+ALB-SG
+[HTTP 80 from Internet]
+        |
+        v
+APP-SG
+[HTTP 80 from ALB-SG]
+        |
+        v
+RDS-SG
+[MYSQL 3306 from APP-SG]
+
+
+--------------------------------------------------------------------------------
+                              TRAFFIC FLOW
+--------------------------------------------------------------------------------
+
+USER
+  |
+  v
+ROUTE 53 [OPTIONAL - NOT DEPLOYED]
+  |
+  v
+INTERNET GATEWAY
+  |
+  v
+APPLICATION LOAD BALANCER
+  |
+  v
+TARGET GROUP [HTTP:80]
+  |
+  v
+AUTO SCALING GROUP
+  |
+  +----> EC2 APP SERVER [ap-south-1a]
+  |
+  +----> EC2 APP SERVER [ap-south-1b]
+  |
+  v
+RDS MYSQL [PRIMARY / MULTI-AZ]
+  |
+  +----> RDS STANDBY [ap-south-1b]
+
+
+--------------------------------------------------------------------------------
+                           MANAGEMENT ACCESS
+--------------------------------------------------------------------------------
+
+ADMIN
+  |
+  v
+AWS SSM SESSION MANAGER
+  |
+  +----> PRIVATE EC2 [ap-south-1a]
+  |
+  +----> PRIVATE EC2 [ap-south-1b]
+
+EC2 ACCESS: EXCLUSIVELY VIA AWS SSM SESSION MANAGER
+NO SSH - NO BASTION
+
+
+--------------------------------------------------------------------------------
+                         OUTBOUND INTERNET FLOW
+--------------------------------------------------------------------------------
+
+PRIVATE EC2
+    |
+    v
+NAT GATEWAY
+    |
+    v
+INTERNET GATEWAY
+    |
+    v
+INTERNET
+
+
+--------------------------------------------------------------------------------
+                              ADDITIONAL DETAILS
+--------------------------------------------------------------------------------
+
+AMAZON S3
+    |
+    +----> Attachment Storage
+
+CLOUDWATCH
+    |
+    +----> High CPU Alarm
+    +----> RDS CPU Alarm
+    +----> Unhealthy Target Alarm
+    |
+    v
+AMAZON SNS
+    |
+    +----> Email Alert Notifications
+
+IAM
+    |
+    +----> EC2 / SSM / RDS Access Roles
+
+DATABASE CREDENTIALS
+    |
+    +----> Injected via Environment Variables
+
+
+--------------------------------------------------------------------------------
+                                LEGEND
+--------------------------------------------------------------------------------
+
+Solid Lines = Active Traffic / Data Flow
+Dashed Purple = Optional Component Not Currently Deployed (Route 53)
+Dashed Grey = Monitoring / Storage Integration
+
+================================================================================
 
 ---
 
