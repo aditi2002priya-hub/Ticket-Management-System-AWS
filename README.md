@@ -25,9 +25,9 @@ The project demonstrates practical experience with AWS networking, compute, data
 
 ## 🏗️ AWS Architecture
 
-The project follows a multi-tier AWS architecture:
 
-text
+
+```text
 ================================================================================
               CLOUD-HOSTED TICKET MANAGEMENT SYSTEM - AWS ARCHITECTURE
                               REGION: ap-south-1
